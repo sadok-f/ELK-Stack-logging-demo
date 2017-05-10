@@ -1,0 +1,84 @@
+version: '3'
+
+services:
+
+  #ElasticSeatch Service
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
+    ports:
+      - "9200:9200"
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      xpack.security.enabled: "false"
+      xpack.monitoring.enabled: "false"
+      xpack.graph.enabled: "false"
+      xpack.watcher.enabled: "false"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  #Logstash Service
+  logstash:
+    image: docker.elastic.co/logstash/logstash:5.4.0
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      - elasticsearch
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  #Kibana Service
+  kibana:
+    image: docker.elastic.co/kibana/kibana:5.4.0
+    environment:
+      ELASTICSEARCH_URL: 'http://elasticsearch:9200'
+      XPACK_SECURITY_ENABLED: 'false'
+      XPACK_MONITORING_ENABLED: 'false'
+    ports:
+      - "5601:5601"
+    depends_on:
+      - logstash
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  #Logspout Service
+  logspout:
+    image: bekt/logspout-logstash
+    environment:
+      ROUTE_URIS: 'logstash+tcp://logstash:5000'
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    depends_on:
+      - logstash
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+
+  #Visualizer Service
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8081:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+  #Flyimg Service (php application)
+  flyimg:
+    image: sadokf/flyimg-build
+    ports:
+      - "8080:80"
+    depends_on:
+      - logstash
+    deploy:
+      replicas: 5
+
+volumes:
+  esdata:
+    driver: local

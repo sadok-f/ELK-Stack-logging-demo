@@ -1,0 +1,77 @@
+version: '2'
+
+services:
+
+  #ElasticSeatch Service
+  elasticsearch:
+    build: elasticsearch/
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      xpack.security.enabled: "false"
+      xpack.monitoring.enabled: "false"
+      xpack.graph.enabled: "false"
+      xpack.watcher.enabled: "false"
+    networks:
+      - elk
+
+  #Logstash Service
+  logstash:
+    build: logstash/
+    container_name: logstash
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    ports:
+      - "5000:5000"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  #Kibana Service
+  kibana:
+    build: kibana/
+    container_name: kibana
+    volumes:
+      - ./kibana/config/:/usr/share/kibana/config
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on:
+      - logstash
+
+  #Logspout Service
+  logspout:
+    image: bekt/logspout-logstash
+    container_name: logspout
+    environment:
+      ROUTE_URIS: 'logstash+tcp://logstash:5000'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - logstash
+    networks:
+      - elk
+    restart: always
+
+  #Flyimg Service (php application)
+  flyimg:
+    image: sadokf/flyimg-build
+    container_name: flyimg
+    ports:
+      - "8080:80"
+    depends_on:
+      - logstash
+    networks:
+      - elk
+
+networks:
+  elk:
+    driver: bridge
