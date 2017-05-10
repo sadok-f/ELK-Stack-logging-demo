@@ -1,4 +1,4 @@
-# ELK Stack for single Vagrant machine with many containers
+# ELK Stack logging for single Vagrant machine runs multi containers
 
 ## Description:
 
@@ -30,8 +30,7 @@ The docker-compose file contain 5 services:
 - Getting indices created in Elasticsearch : `curl '192.168.33.11:9200/_cat/indices?v'`
 
 
-
-# ELK Stack For Docker Swarm
+# ELK Stack logging For Docker Swarm
 
 ## Installation:
 
