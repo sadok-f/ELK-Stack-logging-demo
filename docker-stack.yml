@@ -7,6 +7,8 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
     ports:
       - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
     environment:
       ES_JAVA_OPTS: "-Xms1g -Xmx1g"
       xpack.security.enabled: "false"
@@ -20,6 +22,8 @@ services:
   #Logstash Service
   logstash:
     image: docker.elastic.co/logstash/logstash:5.4.0
+    environment:
+      xpack.monitoring.enabled: "false"
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     depends_on:
@@ -58,6 +62,21 @@ services:
         condition: on-failure
         delay: 30s
 
+ #metricbeat Service
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:5.4.0
+    volumes:
+      - /proc:/hostfs/proc:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /:/hostfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./metricbeat.yml:/etc/metricbeat/metricbeat.yml
+    user: root
+    deploy:
+      mode: global
+    command: metricbeat -e -c /etc/metricbeat/metricbeat.yml -system.hostfs=/hostfs
+
+
   #Visualizer Service
   visualizer:
     image: dockersamples/visualizer:stable
@@ -77,7 +96,7 @@ services:
     depends_on:
       - logstash
     deploy:
-      replicas: 5
+      replicas: 3
 
 volumes:
   esdata:
