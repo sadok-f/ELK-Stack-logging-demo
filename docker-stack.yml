@@ -4,7 +4,7 @@ services:
 
   #ElasticSeatch Service
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.0.0-rc1
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.0.0
     ports:
       - "9200:9200"
     volumes:
@@ -21,7 +21,7 @@ services:
 
   #Logstash Service
   logstash:
-    image: docker.elastic.co/logstash/logstash:6.0.0-rc1
+    image: docker.elastic.co/logstash/logstash:6.0.0
     environment:
       xpack.monitoring.enabled: "false"
     volumes:
@@ -34,7 +34,7 @@ services:
 
   #Kibana Service
   kibana:
-    image: docker.elastic.co/kibana/kibana:6.0.0-rc1
+    image: docker.elastic.co/kibana/kibana:6.0.0
     environment:
       ELASTICSEARCH_URL: 'http://elasticsearch:9200'
       XPACK_SECURITY_ENABLED: 'false'
@@ -64,7 +64,7 @@ services:
 
  #metricbeat Service
   metricbeat:
-    image: docker.elastic.co/beats/metricbeat:6.0.0-rc1
+    image: docker.elastic.co/beats/metricbeat:6.0.0
     volumes:
       - /proc:/hostfs/proc:ro
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro

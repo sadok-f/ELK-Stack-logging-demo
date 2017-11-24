@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 services:
 
@@ -11,10 +11,7 @@ services:
       - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      xpack.security.enabled: "false"
-      xpack.monitoring.enabled: "false"
-      xpack.graph.enabled: "false"
-      xpack.watcher.enabled: "false"
+      ELASTIC_PASSWORD: "changeme"
     networks:
       - elk
 
@@ -22,9 +19,6 @@ services:
   logstash:
     build: logstash/
     container_name: logstash
-    volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
     ports:
       - "5000:5000"
     environment:
@@ -38,8 +32,6 @@ services:
   kibana:
     build: kibana/
     container_name: kibana
-    volumes:
-      - ./kibana/config/:/usr/share/kibana/config
     ports:
       - "5601:5601"
     networks:
@@ -74,4 +66,3 @@ services:
 
 networks:
   elk:
-    driver: bridge

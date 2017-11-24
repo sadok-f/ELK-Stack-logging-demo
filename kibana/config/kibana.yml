@@ -10,7 +10,9 @@ elasticsearch.url: http://elasticsearch:9200
 ## see https://www.elastic.co/guide/en/x-pack/current/xpack-settings.html
 ##     https://www.elastic.co/guide/en/x-pack/current/installing-xpack.html#xpack-enabling
 #
-xpack.security.enabled: false
-xpack.monitoring.enabled: false
-xpack.graph.enabled: false
-xpack.reporting.enabled: false
+
+xpack.security.enabled: true
+xpack.security.encryptionKey: "!0sS2iek^4kH^rH6LX0w1$)d0%)D6$%w"
+
+elasticsearch.username: "kibana"
+elasticsearch.password: "changeme"
