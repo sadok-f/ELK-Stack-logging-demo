@@ -5,7 +5,7 @@ FROM docker.elastic.co/logstash/logstash:6.0.0
 # Example: RUN logstash-plugin install logstash-filter-json
 
 
-ADD config/logstash.yml /usr/share/logstash/config/logstash.yml
 ADD pipeline/logstash.conf /usr/share/logstash/pipeline/logstash.conf
+ADD config/logstash.yml /usr/share/logstash/config/logstash.yml
 
 CMD ["-f", "/usr/share/logstash/pipeline/logstash.conf"]
